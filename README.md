@@ -28,7 +28,7 @@ You can download O'clock from this link :
 
 
 
-To install the Nofrendo app, follow the instructions in the
+To install O'clock, follow the instructions in the
 [how to install](../help/how-to-install.md) guide.
 
 

@@ -1,7 +1,7 @@
 Q ?= @
 CC = arm-none-eabi-gcc
 BUILD_DIR = output
-NWLINK = npx --yes -- nwlink@0.0.16
+NWLINK = npx --yes -- nwlink@0.0.19
 LINK_GC = 1
 LTO = 1
 
@@ -14,13 +14,14 @@ src = $(addprefix src/,\
 )
 
 CFLAGS = -std=c99
-CFLAGS += $(shell $(NWLINK) eadk-cflags)
+CFLAGS += $(shell $(NWLINK) eadk-cflags-device)
 CFLAGS += -Os -Wall
 CFLAGS += -ggdb
 LDFLAGS = -Wl,--relocatable
 LDFLAGS += -nostartfiles
-LDFLAGS += --specs=nano.specs
-# LDFLAGS += --specs=nosys.specs # Alternatively, use full-fledged newlib
+#LDFLAGS += --specs=nano.specs
+LDFLAGS += -lm
+LDFLAGS += --specs=nosys.specs # Alternatively, use full-fledged newlib
 
 ifeq ($(LINK_GC),1)
 CFLAGS += -fdata-sections -ffunction-sections
@@ -42,17 +43,17 @@ build: $(BUILD_DIR)/app.nwa
 check: $(BUILD_DIR)/app.bin
 
 .PHONY: run
-run: $(BUILD_DIR)/app.nwa src/input.txt
+run: $(BUILD_DIR)/app.nwa
 	@echo "INSTALL $<"
-	$(Q) $(NWLINK) install-nwa --external-data src/input.txt $<
+	$(Q) $(NWLINK) install-nwa $<
 
-$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.nwa src/input.txt
+$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.nwa
 	@echo "BIN     $@"
-	$(Q) $(NWLINK) nwa-bin --external-data src/input.txt $< $@
+	$(Q) $(NWLINK) nwa-bin $< $@
 
 $(BUILD_DIR)/%.elf: $(BUILD_DIR)/%.nwa src/input.txt
 	@echo "ELF     $@"
-	$(Q) $(NWLINK) nwa-elf --external-data src/input.txt $< $@
+	$(Q) $(NWLINK) nwa-elf $< $@
 
 $(BUILD_DIR)/app.nwa: $(call object_for,$(src)) $(BUILD_DIR)/icon.o
 	@echo "LD      $@"
